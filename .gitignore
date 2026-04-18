@@ -1,0 +1,30 @@
+# ==========================================
+# Konfigurasi .gitignore Proyek Manggis
+# ==========================================
+
+# 1. Node.js (Frontend)
+frontend/node_modules/
+npm-debug.log
+
+# 2. Python (AI Service)
+api_service/__pycache__/
+api_service/venv/
+api_service/env/
+*.pyc
+
+# 3. File Model AI (Sangat besar, tidak boleh masuk Git)
+api_service/best.pt
+runs/
+yolov8n.pt
+
+# 4. Folder Uploads (Mencegah gambar manggis uji coba ikut terupload)
+frontend/uploads/*
+# (Opsional) Tetap pertahankan folder uploads-nya, tapi kosongkan isinya
+!frontend/uploads/.gitkeep
+
+# 5. File Rahasia
+.env
+
+# 6. File Sistem Operasi (Mac/Windows junk files)
+.DS_Store
+Thumbs.db
