@@ -2,7 +2,8 @@
 # Konfigurasi .gitignore Proyek Manggis
 # ==========================================
 
-# 1. Node.js (Frontend)
+# 1. Node.js (Frontend & Root)
+node_modules/
 frontend/node_modules/
 npm-debug.log
 
@@ -19,7 +20,6 @@ yolov8n.pt
 
 # 4. Folder Uploads (Mencegah gambar manggis uji coba ikut terupload)
 frontend/uploads/*
-# (Opsional) Tetap pertahankan folder uploads-nya, tapi kosongkan isinya
 !frontend/uploads/.gitkeep
 
 # 5. File Rahasia
