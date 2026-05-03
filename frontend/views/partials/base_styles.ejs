@@ -1,0 +1,168 @@
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --bg:          #fdfaff;
+    --bg-soft:     #faf5ff;
+    --surface:     #ffffff;
+    --surface2:    #f5eeff;
+    --border:      #e8d5f5;
+
+    --purple:      #7c3aed;
+    --purple-lt:   #9d5ff5;
+    --purple-dk:   #5b21b6;
+    --magenta:     #c026d3;
+    --magenta-lt:  #e040fb;
+
+    --ok:          #7c3aed;
+    --ok-bg:       #ede9fe;
+    --ng:          #dc2626;
+    --ng-bg:       #fee2e2;
+
+    --text:        #1e1230;
+    --text-muted:  #6b5e82;
+    --text-light:  #9d8eb5;
+
+    --shadow-sm:   0 1px 4px rgba(124,58,237,0.08);
+    --shadow-md:   0 4px 20px rgba(124,58,237,0.12);
+    --shadow-lg:   0 8px 40px rgba(124,58,237,0.18);
+    --shadow-xl:   0 16px 60px rgba(124,58,237,0.22);
+
+    --grad-main:   linear-gradient(135deg, var(--purple), var(--magenta));
+    --grad-soft:   linear-gradient(135deg, #ede9fe, #fce7ff);
+    --radius-card: 20px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: ''; position: fixed; top: -150px; left: -150px;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(192,38,211,0.07) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed; bottom: -120px; right: -120px;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── Navbar ── */
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .85rem 2.5rem;
+    background: rgba(253,250,255,0.88);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  .nav-brand {
+    display: flex; align-items: center; gap: .65rem;
+    text-decoration: none;
+  }
+  .logo-icon {
+    width: 64px; height: 64px;
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-icon img {
+    width: 64px; height: 64px;
+    object-fit: contain;
+    display: block;
+  }
+  .brand-name { font-size: 1.3rem; font-weight: 800; color: var(--purple-dk); letter-spacing: -.5px; }
+  .nav-links { display: flex; align-items: center; gap: .25rem; list-style: none; }
+  .nav-link {
+    padding: .5rem .9rem; border-radius: 10px; text-decoration: none;
+    font-size: .85rem; font-weight: 500; color: var(--text-muted);
+    transition: all .2s;
+  }
+  .nav-link:hover { background: var(--surface2); color: var(--purple); }
+  .nav-link.active { background: var(--ok-bg); color: var(--purple); font-weight: 700; }
+  .nav-toggle { display: none; border: none; background: none; font-size: 1.4rem; cursor: pointer; color: var(--purple-dk); }
+  .nav-mobile {
+    display: none; flex-direction: column; gap: .25rem;
+    position: fixed; top: 62px; left: 0; right: 0; z-index: 199;
+    background: var(--surface); padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+  }
+  .nav-mobile.open { display: flex; }
+  .nav-mobile .nav-link { font-size: .9rem; }
+  @media(max-width:720px){
+    .nav-links { display: none; }
+    .nav-toggle { display: block; }
+    nav { padding: .85rem 1.25rem; }
+  }
+
+  /* ── Layout ── */
+  main { position: relative; z-index: 1; max-width: 1140px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card); padding: 2rem;
+    box-shadow: var(--shadow-md);
+    transition: box-shadow .3s, border-color .3s, transform .3s;
+  }
+  .card:hover { box-shadow: var(--shadow-lg); border-color: #c4b5fd; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    padding: .7rem 1.6rem; border-radius: 12px; border: none;
+    font-family: inherit; font-size: .9rem; font-weight: 700;
+    cursor: pointer; text-decoration: none; transition: all .25s;
+  }
+  .btn-primary {
+    background: var(--grad-main); color: #fff;
+    box-shadow: 0 4px 16px rgba(124,58,237,0.35);
+  }
+  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,0.45); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-outline {
+    background: transparent; color: var(--purple);
+    border: 2px solid var(--purple); box-shadow: none;
+  }
+  .btn-outline:hover { background: var(--ok-bg); transform: translateY(-1px); }
+
+  /* ── Badge ── */
+  .badge { font-size: .73rem; font-weight: 700; padding: .2rem .7rem; border-radius: 999px; border: 1px solid; }
+  .badge.layak { background: var(--ok-bg); color: var(--ok); border-color: #c4b5fd; }
+  .badge.tidak { background: var(--ng-bg); color: var(--ng); border-color: #fca5a5; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center; padding: 2rem 1rem;
+    color: var(--text-light); font-size: .78rem;
+    border-top: 1px solid var(--border); position: relative; z-index: 1;
+  }
+  footer span { color: var(--purple); font-weight: 600; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+
+  .animate-up { animation: fadeUp .6s ease both; }
+  .delay-1 { animation-delay: .1s; }
+  .delay-2 { animation-delay: .2s; }
+  .delay-3 { animation-delay: .3s; }
+  .delay-4 { animation-delay: .4s; }
+  .delay-5 { animation-delay: .5s; }
+</style>
