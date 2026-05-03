@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beranda — Manggoesteen · Sistem Kelayakan Ekspor Manggis</title>
+  <meta name="description" content="Manggoesteen adalah sistem deteksi kelayakan ekspor manggis berbasis AI YOLOv8 untuk membantu UMKM Indonesia.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <%- include('partials/base_styles') %>
+  <style>
+    /* ── Hero ── */
+    .hero-section {
+      min-height: 88vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 4rem 1.5rem 2rem;
+      position: relative;
+    }
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: var(--ok-bg); border: 1px solid #d8b4fe;
+      color: var(--purple); font-size: .78rem; font-weight: 700;
+      padding: .35rem 1rem; border-radius: 999px; margin-bottom: 1.5rem;
+      letter-spacing: .5px;
+    }
+    .hero-pill span { animation: pulse 2s ease infinite; display:inline-block; }
+    .hero-title {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 900; line-height: 1.1; color: var(--text);
+      max-width: 780px; letter-spacing: -1px;
+    }
+    .hero-title .grad {
+      background: linear-gradient(135deg, var(--purple), var(--magenta));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      margin-top: 1.25rem; color: var(--text-muted);
+      font-size: clamp(.95rem, 2vw, 1.15rem);
+      max-width: 560px; line-height: 1.7;
+    }
+    .hero-cta { display: flex; gap: 1rem; margin-top: 2.25rem; flex-wrap: wrap; justify-content: center; }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+      display: flex; gap: 2rem; margin-top: 3.5rem;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .stat-item { text-align: center; }
+    .stat-item .num {
+      font-size: 2.4rem; font-weight: 900;
+      background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-item .lbl { font-size: .78rem; color: var(--text-muted); font-weight: 500; margin-top: .15rem; }
+
+    /* ── Section title ── */
+    .section { padding: 4rem 1.5rem; max-width: 1140px; margin: 0 auto; }
+    .section-label {
+      font-size: .75rem; font-weight: 700; letter-spacing: 1.5px;
+      color: var(--purple); text-transform: uppercase; margin-bottom: .6rem;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 800; color: var(--text); line-height: 1.25; letter-spacing: -.5px;
+    }
+    .section-title .grad {
+      background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .section-sub { margin-top: .75rem; color: var(--text-muted); font-size: .95rem; max-width: 520px; line-height: 1.7; }
+
+    /* ── Feature cards ── */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 2.5rem;
+    }
+    .feat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-card); padding: 2rem;
+      box-shadow: var(--shadow-sm);
+      transition: all .3s; position: relative; overflow: hidden;
+    }
+    .feat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--grad-main); transform: scaleX(0); transition: transform .3s;
+      transform-origin: left;
+    }
+    .feat-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: #c4b5fd; }
+    .feat-card:hover::before { transform: scaleX(1); }
+    .feat-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: var(--grad-soft); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; margin-bottom: 1.25rem;
+    }
+    .feat-title { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: .5rem; }
+    .feat-desc { font-size: .875rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── How it works ── */
+    .steps-wrap { display: flex; flex-direction: column; gap: 0; margin-top: 2.5rem; }
+    .step {
+      display: grid; grid-template-columns: 56px 1fr; gap: 1.25rem;
+      padding-bottom: 2rem; position: relative;
+    }
+    .step:not(:last-child)::after {
+      content: ''; position: absolute; left: 27px; top: 52px; bottom: 0;
+      width: 2px; background: linear-gradient(var(--purple), transparent);
+    }
+    .step-num {
+      width: 54px; height: 54px; border-radius: 50%;
+      background: var(--grad-main); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 900;
+      box-shadow: 0 4px 16px rgba(124,58,237,0.35); flex-shrink: 0;
+    }
+    .step-content { padding-top: .5rem; }
+    .step-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: .35rem; }
+    .step-desc { font-size: .875rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── Tech stack ── */
+    .tech-grid {
+      display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.75rem;
+    }
+    .tech-chip {
+      display: flex; align-items: center; gap: .5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: .65rem 1.1rem;
+      box-shadow: var(--shadow-sm); transition: all .2s;
+      font-size: .85rem; font-weight: 600; color: var(--text);
+    }
+    .tech-chip:hover { border-color: var(--purple); color: var(--purple); transform: translateY(-2px); }
+    .tech-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--grad-main); flex-shrink: 0; }
+
+    /* ── CTA Banner ── */
+    .cta-banner {
+      background: var(--grad-main); border-radius: 24px;
+      padding: 3.5rem 2.5rem; text-align: center; color: #fff;
+      position: relative; overflow: hidden; margin: 0 1.5rem 4rem;
+      box-shadow: var(--shadow-xl);
+    }
+    .cta-banner::before {
+      content: '🍇'; position: absolute; font-size: 12rem; opacity: .06;
+      top: -2rem; right: -2rem; line-height: 1;
+    }
+    .cta-banner h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 900; margin-bottom: .75rem; }
+    .cta-banner p { font-size: 1rem; opacity: .85; margin-bottom: 2rem; max-width: 440px; margin-left: auto; margin-right: auto; }
+    .btn-white {
+      background: #fff; color: var(--purple-dk); font-family: inherit;
+      font-size: .95rem; font-weight: 800; padding: .85rem 2rem;
+      border-radius: 12px; border: none; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: all .25s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+
+    /* ── Two col ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+    @media(max-width: 768px) { .two-col { grid-template-columns: 1fr; gap: 2rem; } }
+
+    /* ── Mangosteen visual card ── */
+    .visual-card {
+      background: var(--grad-soft); border: 1px solid var(--border);
+      border-radius: 24px; padding: 2.5rem; text-align: center;
+      box-shadow: var(--shadow-md); position: relative; overflow: hidden;
+    }
+    .visual-card .big-emoji { font-size: 7rem; display: block; animation: pulse 3s ease infinite; }
+    .visual-card .label-row {
+      display: flex; justify-content: center; gap: .6rem; margin-top: 1.25rem; flex-wrap: wrap;
+    }
+    .class-chip {
+      padding: .35rem .9rem; border-radius: 999px; font-size: .75rem; font-weight: 700;
+      border: 1px solid;
+    }
+    .class-chip.layak { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
+    .class-chip.tidak { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+    .class-chip.grade { background: #fff7ed; color: #92400e; border-color: #fbbf24; }
+
+    @media(max-width: 600px) {
+      .hero-section { padding: 3rem 1rem 1.5rem; min-height: auto; }
+      .stats-strip { gap: 1.25rem; }
+      .cta-banner { margin: 0 0 3rem; padding: 2.5rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<%- include('partials/navbar', { activeNav: 'beranda' }) %>
+
+<!-- HERO -->
+<section class="hero-section">
+  <div class="hero-pill animate-up">
+    <img src="/images/logo.png" alt="" style="width:20px;height:20px;object-fit:contain;mix-blend-mode:multiply;"> Didukung YOLOv8 · Computer Vision
+  </div>
+  <h1 class="hero-title animate-up delay-1">
+    Deteksi <span class="grad">Kelayakan Ekspor</span> Manggis
+  </h1>
+  <p class="hero-sub animate-up delay-2">
+    Manggoesteen membantu UMKM Indonesia menentukan kualitas manggis secara akurat, cepat, dan objektif — hanya dengan foto.
+  </p>
+  <div class="hero-cta animate-up delay-3">
+    <a href="/analisis" class="btn btn-primary">🔍 Mulai Analisis</a>
+    <a href="/about" class="btn btn-outline">👥 Tentang Kami</a>
+  </div>
+  <div class="stats-strip animate-up delay-4">
+    <div class="stat-item">
+      <div class="num">YOLOv8</div>
+      <div class="lbl">Model AI</div>
+    </div>
+    <div class="stat-item">
+      <div class="num">≥90%</div>
+      <div class="lbl">Target Akurasi</div>
+    </div>
+    <div class="stat-item">
+      <div class="num">&lt;3s</div>
+      <div class="lbl">Waktu Deteksi</div>
+    </div>
+    <div class="stat-item">
+      <div class="num">2</div>
+      <div class="lbl">Kelas Kelayakan</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT SYSTEM -->
+<section class="section">
+  <div class="two-col">
+    <div class="animate-up">
+      <p class="section-label">Tentang Sistem</p>
+      <h2 class="section-title">Apa itu <span class="grad">Manggoesteen</span>?</h2>
+      <p class="section-sub">
+        Manggoesteen adalah sistem berbasis kecerdasan buatan yang menggunakan model deteksi objek <strong>YOLOv8</strong> untuk mengklasifikasikan kualitas buah manggis.
+        Sistem ini dirancang khusus untuk mendukung UMKM agrikultur Indonesia dalam proses seleksi manggis layak ekspor.
+      </p>
+      <p class="section-sub" style="margin-top:.75rem;">
+        Dengan memanfaatkan teknologi <strong>Computer Vision</strong>, petani dan pelaku usaha dapat memperoleh penilaian kualitas yang objektif, konsisten, dan efisien — menggantikan proses seleksi manual yang rentan kesalahan.
+      </p>
+      <div style="margin-top:1.75rem;">
+        <a href="/analisis" class="btn btn-primary">Coba Sekarang →</a>
+      </div>
+    </div>
+    <div class="visual-card animate-up delay-2">
+      <img src="/images/logo.png" alt="Manggis AI" style="width:130px;height:130px;object-fit:contain;display:block;margin:0 auto;mix-blend-mode:multiply;animation:pulse 3s ease infinite;">
+      <p style="margin-top:1rem;font-weight:700;color:var(--text);">Klasifikasi Kelayakan Ekspor</p>
+      <div class="label-row">
+        <span class="class-chip layak">✅ Layak Ekspor</span>
+        <span class="class-chip tidak">❌ Tidak Layak</span>
+        <span class="class-chip grade">Grade A / B / C</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" style="padding-top:1rem;">
+  <p class="section-label animate-up">Fitur Unggulan</p>
+  <h2 class="section-title animate-up delay-1">Dirancang untuk <span class="grad">Kemudahan</span></h2>
+  <div class="features-grid">
+    <div class="feat-card animate-up delay-1">
+      <div class="feat-icon">🤖</div>
+      <div class="feat-title">Deteksi AI Real-Time</div>
+      <div class="feat-desc">Menggunakan YOLOv8, model deteksi objek mutakhir yang mampu mengenali dan menilai kualitas manggis dalam hitungan detik.</div>
+    </div>
+    <div class="feat-card animate-up delay-2">
+      <div class="feat-icon">📷</div>
+      <div class="feat-title">Input Fleksibel</div>
+      <div class="feat-desc">Unggah foto dari perangkat atau gunakan kamera secara langsung. Mendukung format JPG dan PNG dengan ukuran hingga 10MB.</div>
+    </div>
+    <div class="feat-card animate-up delay-3">
+      <div class="feat-icon">📊</div>
+      <div class="feat-title">Laporan Detail</div>
+      <div class="feat-desc">Setiap manggis yang terdeteksi dilengkapi skor kepercayaan (confidence score) dan status kelayakan ekspor secara individual.</div>
+    </div>
+    <div class="feat-card animate-up delay-4">
+      <div class="feat-icon">📋</div>
+      <div class="feat-title">Riwayat Analisis</div>
+      <div class="feat-desc">Semua hasil analisis tersimpan dalam riwayat yang dapat ditinjau kembali kapan saja untuk keperluan dokumentasi.</div>
+    </div>
+    <div class="feat-card animate-up delay-5">
+      <div class="feat-icon">🌐</div>
+      <div class="feat-title">Berbasis Web</div>
+      <div class="feat-desc">Tidak perlu instalasi. Akses langsung dari browser di desktop maupun perangkat mobile kapan saja dan di mana saja.</div>
+    </div>
+    <div class="feat-card animate-up delay-5">
+      <div class="feat-icon">⚡</div>
+      <div class="feat-title">Respons Cepat</div>
+      <div class="feat-desc">Arsitektur Node.js + Python Flask yang ringan memastikan proses analisis berlangsung cepat bahkan pada gambar beresolusi tinggi.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" style="padding-top:1rem;">
+  <div class="two-col">
+    <div>
+      <p class="section-label animate-up">Cara Kerja</p>
+      <h2 class="section-title animate-up delay-1">Mudah dalam <span class="grad">3 Langkah</span></h2>
+      <div class="steps-wrap">
+        <div class="step animate-up delay-1">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Unggah atau Ambil Foto</div>
+            <div class="step-desc">Unggah gambar manggis dari perangkat Anda atau gunakan fitur kamera langsung di browser — tanpa aplikasi tambahan.</div>
+          </div>
+        </div>
+        <div class="step animate-up delay-2">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">AI Menganalisis</div>
+            <div class="step-desc">Model YOLOv8 memproses gambar, mendeteksi setiap buah manggis, dan menilai kualitasnya secara otomatis.</div>
+          </div>
+        </div>
+        <div class="step animate-up delay-3">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Terima Hasil Instan</div>
+            <div class="step-desc">Dapatkan laporan lengkap: jumlah manggis, status layak/tidak layak ekspor, dan skor kepercayaan masing-masing buah.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="animate-up delay-2">
+      <div class="card" style="padding:2rem;">
+        <div style="font-size:.8rem;font-weight:700;color:var(--text-muted);margin-bottom:1.25rem;letter-spacing:.5px;">TEKNOLOGI YANG DIGUNAKAN</div>
+        <div class="tech-grid">
+          <div class="tech-chip"><span class="dot"></span>YOLOv8</div>
+          <div class="tech-chip"><span class="dot"></span>Python / Flask</div>
+          <div class="tech-chip"><span class="dot"></span>Node.js</div>
+          <div class="tech-chip"><span class="dot"></span>Express.js</div>
+          <div class="tech-chip"><span class="dot"></span>EJS Template</div>
+          <div class="tech-chip"><span class="dot"></span>OpenCV</div>
+          <div class="tech-chip"><span class="dot"></span>WebRTC Camera</div>
+          <div class="tech-chip"><span class="dot"></span>Computer Vision</div>
+        </div>
+        <div style="margin-top:1.5rem;padding:1.25rem;background:var(--bg-soft);border-radius:14px;border:1px solid var(--border);">
+          <div style="font-size:.78rem;color:var(--text-muted);line-height:1.7;">
+            <strong style="color:var(--purple-dk);">Arsitektur:</strong> Frontend berbasis Node.js/Express berkomunikasi dengan AI Service berbasis Python/Flask melalui REST API lokal, memastikan pemrosesan cepat dan aman.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<div style="max-width:1140px;margin:0 auto;padding:0 1.5rem;">
+  <div class="cta-banner animate-up">
+    <h2>Siap Mendeteksi Kelayakan Manggis?</h2>
+    <p>Mulai analisis sekarang — gratis, cepat, dan akurat dengan teknologi AI terkini.</p>
+    <a href="/analisis" class="btn-white">🔍 Mulai Analisis Sekarang</a>
+  </div>
+</div>
+
+<footer>
+  <strong style="color:var(--purple-dk);">Manggoesteen</strong> &nbsp;·&nbsp;
+  Dibuat oleh <span>Kelompok 11</span> &nbsp;·&nbsp;
+  APM Universitas Andalas &nbsp;·&nbsp;
+  YOLOv8 Computer Vision &nbsp;·&nbsp; <%= new Date().getFullYear() %>
+</footer>
+
+<script>
+function toggleMobileNav(){
+  document.getElementById('navMobile').classList.toggle('open');
+}
+// IntersectionObserver for animate-up
+const obs = new IntersectionObserver((entries)=>{
+  entries.forEach(e => { if(e.isIntersecting){ e.target.style.animationPlayState='running'; } });
+},{threshold:0.1});
+document.querySelectorAll('.animate-up').forEach(el=>{
+  el.style.animationPlayState='paused';
+  obs.observe(el);
+});
+</script>
+</body>
+</html>

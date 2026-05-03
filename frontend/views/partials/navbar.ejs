@@ -1,0 +1,23 @@
+<%
+  // activeNav is passed from the rendering route
+  const nav = typeof activeNav !== 'undefined' ? activeNav : '';
+%>
+<nav>
+  <a href="/" class="nav-brand">
+    <img src="/images/logo.png" alt="Manggoesteen Logo" class="logo-icon" style="width:64px;height:64px;object-fit:contain;">
+    <span class="brand-name">Manggoesteen</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/" class="nav-link <%= nav==='beranda'?'active':'' %>">🏠 Beranda</a></li>
+    <li><a href="/analisis" class="nav-link <%= nav==='analisis'?'active':'' %>">🔍 Analisis</a></li>
+    <li><a href="/riwayat" class="nav-link <%= nav==='riwayat'?'active':'' %>">📋 Riwayat</a></li>
+    <li><a href="/about" class="nav-link <%= nav==='about'?'active':'' %>">👥 Tentang Kami</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle" onclick="toggleMobileNav()">☰</button>
+</nav>
+<div class="nav-mobile" id="navMobile">
+  <a href="/" class="nav-link <%= nav==='beranda'?'active':'' %>">🏠 Beranda</a>
+  <a href="/analisis" class="nav-link <%= nav==='analisis'?'active':'' %>">🔍 Analisis</a>
+  <a href="/riwayat" class="nav-link <%= nav==='riwayat'?'active':'' %>">📋 Riwayat</a>
+  <a href="/about" class="nav-link <%= nav==='about'?'active':'' %>">👥 Tentang Kami</a>
+</div>

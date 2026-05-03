@@ -1,66 +1,108 @@
 const express = require('express');
-const multer = require('multer');
-const axios = require('axios');
+const multer  = require('multer');
+const axios   = require('axios');
 const FormData = require('form-data');
-const fs = require('fs');
+const fs   = require('fs');
 const path = require('path');
 
-const app = express();
+const app  = express();
 const PORT = 3000;
 
-// Konfigurasi EJS sebagai View Engine
+// ── View Engine ──────────────────────────────────────────────
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middleware untuk menyajikan file statis dan folder uploads agar gambar bisa ditampilkan di web
+// ── Static Files ─────────────────────────────────────────────
 app.use(express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
-// Konfigurasi Multer untuk penyimpanan gambar sementara
+// ── Upload Config ─────────────────────────────────────────────
 const upload = multer({ dest: 'uploads/' });
 
-// Route GET: Menampilkan Halaman Utama
+// ── In-memory history store (reset on server restart) ─────────
+let analysisHistory = [];
+
+// ── Routes ───────────────────────────────────────────────────
+
+// Redirect root → beranda
 app.get('/', (req, res) => {
-    res.render('index', { result: null, imagePath: null, error: null });
+    res.redirect('/beranda');
 });
 
-// Route POST: Menangani Upload Gambar & Memanggil AI Service
+// Beranda (Landing Page)
+app.get('/beranda', (req, res) => {
+    res.render('beranda');
+});
+
+// Halaman Analisis
+app.get('/analisis', (req, res) => {
+    res.render('analisis', { result: null, imagePath: null, error: null });
+});
+
+// Proses Analisis (POST)
 app.post('/cek-kelayakan', upload.single('image'), async (req, res) => {
     try {
-        // 1. Validasi apakah UMKM benar-benar mengunggah gambar
         if (!req.file) {
-            return res.render('index', { result: null, imagePath: null, error: "Mohon unggah gambar manggis terlebih dahulu!" });
+            return res.render('analisis', {
+                result: null, imagePath: null,
+                error: 'Mohon unggah gambar manggis terlebih dahulu!'
+            });
         }
 
-        // 2. Membungkus gambar ke dalam format form-data untuk dikirim ke Python
         const formData = new FormData();
         formData.append('image', fs.createReadStream(req.file.path));
 
-        // 3. Mengirim HTTP POST ke AI Service (Flask) yang berjalan di Port 5000
         const aiResponse = await axios.post('http://127.0.0.1:5000/predict', formData, {
-            headers: {
-                ...formData.getHeaders()
-            }
+            headers: { ...formData.getHeaders() }
         });
 
-        // 4. Merender ulang halaman dengan membawa data hasil deteksi dari AI
-        res.render('index', {
-            result: aiResponse.data,
-            imagePath: `/uploads/${req.file.filename}`, // URL gambar untuk ditampilkan
-            error: null
+        const result    = aiResponse.data;
+        const imagePath = `/uploads/${req.file.filename}`;
+
+        // Simpan ke riwayat
+        const layakCount = result.data
+            ? result.data.filter(d => d.kelayakan === 'Layak Ekspor').length
+            : 0;
+        analysisHistory.unshift({
+            id:        analysisHistory.length + 1,
+            tanggal:   new Date().toISOString(),
+            imagePath: imagePath,
+            jumlah:    result.jumlah_manggis_terdeteksi || 0,
+            layak:     layakCount,
         });
 
-    } catch (error) {
-        console.error("Error dari AI Service:", error.message);
-        res.render('index', { 
-            result: null, 
-            imagePath: null, 
-            error: "Gagal terhubung ke AI Service. Pastikan server Python menyala." 
+        res.render('analisis', { result, imagePath, error: null });
+
+    } catch (err) {
+        console.error('Error dari AI Service:', err.message);
+        res.render('analisis', {
+            result: null, imagePath: null,
+            error: 'Gagal terhubung ke AI Service. Pastikan server Python sudah berjalan.'
         });
     }
 });
 
-// Menjalankan Server Node.js
+// Riwayat Analisis
+app.get('/riwayat', (req, res) => {
+    res.render('riwayat', { history: analysisHistory });
+});
+
+// About Us
+app.get('/about', (req, res) => {
+    res.render('about');
+});
+
+// Backward compat — index redirect
+app.get('/index', (req, res) => {
+    res.redirect('/analisis');
+});
+
+// ── Start Server ──────────────────────────────────────────────
 app.listen(PORT, () => {
-    console.log(`Server Sistem Manggis berjalan dengan mulus di http://localhost:${PORT}`);
+    console.log(`\n🍇  Manggoes berjalan di http://localhost:${PORT}\n`);
+    console.log(`   Beranda  → http://localhost:${PORT}/beranda`);
+    console.log(`   Analisis → http://localhost:${PORT}/analisis`);
+    console.log(`   Riwayat  → http://localhost:${PORT}/riwayat`);
+    console.log(`   About    → http://localhost:${PORT}/about\n`);
 });

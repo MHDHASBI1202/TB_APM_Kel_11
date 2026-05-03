@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tentang Kami — Manggoesteen</title>
+  <meta name="description" content="Tentang sistem Manggoesteen dan tim pengembang dari Kelompok 11 APM Universitas Andalas.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <%- include('partials/base_styles') %>
+  <style>
+    /* ── Page Hero ── */
+    .about-hero {
+      text-align: center; padding: 3.5rem 1.5rem 2rem;
+      position: relative;
+    }
+    .about-hero h1 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 900; color: var(--text); letter-spacing: -.5px;
+    }
+    .about-hero h1 span {
+      background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .about-hero p { color: var(--text-muted); font-size: .95rem; margin-top: .6rem; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.7; }
+
+    /* ── System Info ── */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0; }
+    @media(max-width:720px){ .info-grid { grid-template-columns: 1fr; } }
+    .info-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-card); padding: 2rem;
+      box-shadow: var(--shadow-sm); transition: all .3s;
+    }
+    .info-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: #c4b5fd; }
+    .info-card-icon {
+      width: 48px; height: 48px; border-radius: 13px;
+      background: var(--grad-soft); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1rem;
+    }
+    .info-card h3 { font-size: 1rem; font-weight: 700; color: var(--purple-dk); margin-bottom: .5rem; }
+    .info-card p { font-size: .875rem; color: var(--text-muted); line-height: 1.7; }
+
+    /* ── Section heading ── */
+    .section-label { font-size: .75rem; font-weight: 700; letter-spacing: 1.5px; color: var(--purple); text-transform: uppercase; margin-bottom: .4rem; }
+    .section-title { font-size: clamp(1.4rem,3vw,2rem); font-weight: 800; color: var(--text); letter-spacing: -.5px; }
+    .section-title span { background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    /* ── Team section ── */
+    .team-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem; margin-top: 2rem;
+    }
+    .member-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-card); padding: 2rem 1.5rem;
+      text-align: center; box-shadow: var(--shadow-sm);
+      transition: all .3s; position: relative; overflow: hidden;
+    }
+    .member-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+      background: var(--grad-main); transform: scaleX(0); transition: transform .3s;
+    }
+    .member-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-5px); border-color: #c4b5fd; }
+    .member-card:hover::after { transform: scaleX(1); }
+    .avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: var(--grad-soft);
+      margin: 0 auto 1rem;
+      overflow: hidden;
+      border: 3px solid #d8b4fe;
+      box-shadow: 0 4px 16px rgba(124,58,237,.25);
+    }
+    .avatar img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center top;
+      display: block;
+    }
+    .member-name { font-size: 1rem; font-weight: 800; color: var(--text); }
+    .member-nim {
+      font-size: .78rem; color: var(--text-muted); margin-top: .2rem;
+      font-family: 'Courier New', monospace; letter-spacing: .5px;
+    }
+    .member-role {
+      display: inline-block; margin-top: .75rem;
+      font-size: .72rem; font-weight: 700; padding: .25rem .8rem;
+      background: var(--ok-bg); color: var(--purple); border: 1px solid #d8b4fe;
+      border-radius: 999px; letter-spacing: .3px;
+    }
+
+    /* ── University badge ── */
+    .univ-badge {
+      background: var(--grad-soft); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.75rem 2rem;
+      display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .univ-badge .univ-icon { font-size: 3rem; flex-shrink: 0; }
+    .univ-badge h3 { font-size: 1rem; font-weight: 800; color: var(--purple-dk); }
+    .univ-badge p { font-size: .85rem; color: var(--text-muted); margin-top: .2rem; }
+    @media(max-width:520px){ .univ-badge { flex-direction: column; text-align: center; } }
+
+    /* ── Mission / Vision ── */
+    .mv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+    @media(max-width:640px){ .mv-grid { grid-template-columns: 1fr; } }
+    .mv-card {
+      border-radius: 18px; padding: 2rem;
+      position: relative; overflow: hidden;
+    }
+    .mv-card.mission {
+      background: linear-gradient(135deg, #5b21b6, #7c3aed);
+      color: #fff; box-shadow: 0 8px 32px rgba(91,33,182,.3);
+    }
+    .mv-card.vision {
+      background: linear-gradient(135deg, #86198f, #c026d3);
+      color: #fff; box-shadow: 0 8px 32px rgba(192,38,211,.3);
+    }
+    .mv-card::before {
+      content: attr(data-emoji); position: absolute; right: -10px; bottom: -10px;
+      font-size: 6rem; opacity: .12; line-height: 1;
+    }
+    .mv-label { font-size: .72rem; font-weight: 700; letter-spacing: 1.5px; opacity: .7; text-transform: uppercase; margin-bottom: .6rem; }
+    .mv-title { font-size: 1.2rem; font-weight: 800; margin-bottom: .75rem; }
+    .mv-card p { font-size: .875rem; opacity: .9; line-height: 1.7; }
+
+    /* ── Timeline / Project ── */
+    .timeline { margin-top: 2rem; display: flex; flex-direction: column; }
+    .tl-item {
+      display: grid;
+      grid-template-columns: 80px 28px 1fr;
+      column-gap: 1rem;
+      padding-bottom: 1.75rem;
+    }
+    .tl-date {
+      font-size: .72rem; font-weight: 700; color: var(--purple);
+      text-align: right; padding-top: .2rem; letter-spacing: .5px; line-height: 1.4;
+    }
+    .tl-middle {
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .tl-dot {
+      width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+      background: var(--grad-main); border: 2px solid #fff;
+      box-shadow: 0 0 0 3px rgba(124,58,237,.2); margin-top: .15rem;
+    }
+    .tl-line {
+      flex: 1; width: 2px; background: var(--border); margin-top: 4px;
+    }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-content { padding-top: 0; }
+    .tl-content h4 { font-size: .9rem; font-weight: 700; color: var(--text); margin-bottom: .25rem; }
+    .tl-content p { font-size: .82rem; color: var(--text-muted); line-height: 1.55; }
+
+    /* ── CTA ── */
+    .about-cta {
+      background: var(--grad-main); border-radius: 24px;
+      padding: 3rem 2rem; text-align: center; color: #fff;
+      margin-top: 3rem; box-shadow: var(--shadow-xl);
+    }
+    .about-cta h2 { font-size: 1.6rem; font-weight: 900; margin-bottom: .5rem; }
+    .about-cta p { opacity: .85; margin-bottom: 1.5rem; font-size: .95rem; }
+    .btn-white {
+      background: #fff; color: var(--purple-dk);
+      font-family: inherit; font-size: .9rem; font-weight: 800;
+      padding: .75rem 1.75rem; border-radius: 12px; border: none;
+      cursor: pointer; text-decoration: none; display: inline-block;
+      box-shadow: 0 4px 16px rgba(0,0,0,.15); transition: all .25s;
+    }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.2); }
+  </style>
+</head>
+<body>
+
+<%- include('partials/navbar', { activeNav: 'about' }) %>
+
+<main>
+  <!-- Page Hero -->
+  <div class="about-hero animate-up">
+    <h1>Tentang <span>Manggoesteen</span></h1>
+    <p>Sistem deteksi kualitas manggis berbasis AI yang dikembangkan oleh mahasiswa Universitas Andalas untuk mendukung UMKM agrikultur Indonesia</p>
+  </div>
+
+  <!-- University Badge -->
+  <div class="univ-badge animate-up delay-1">
+    <div class="univ-icon">🎓</div>
+    <div>
+      <h3>Universitas Andalas — Kelompok 11</h3>
+      <p>Tugas Besar Mata Kuliah Akuisisi & Pengolahan Media (APM) · Semester 6 · 2025/2026</p>
+    </div>
+  </div>
+
+  <!-- System Info -->
+  <p class="section-label animate-up">Sistem</p>
+  <h2 class="section-title animate-up delay-1">Mengenal <span>Manggoesteen</span></h2>
+  <div class="info-grid">
+    <div class="info-card animate-up delay-1">
+      <div class="info-card-icon">🎯</div>
+      <h3>Latar Belakang</h3>
+      <p>Padang dan Sumatera Barat merupakan salah satu sentra penghasil manggis unggulan di Indonesia. Namun, proses seleksi kualitas yang masih manual menjadi hambatan efisiensi bagi UMKM ekspor. Manggoesteen hadir sebagai solusi berbasis AI untuk mengotomatisasi proses ini.</p>
+    </div>
+    <div class="info-card animate-up delay-2">
+      <div class="info-card-icon">🤖</div>
+      <h3>Teknologi Utama</h3>
+      <p>Menggunakan model <strong>YOLOv8</strong> (You Only Look Once v8) — arsitektur deteksi objek terdepan yang mampu mendeteksi dan mengklasifikasikan manggis secara real-time dengan akurasi tinggi dalam satu kali inferensi.</p>
+    </div>
+    <div class="info-card animate-up delay-3">
+      <div class="info-card-icon">📦</div>
+      <h3>Output Sistem</h3>
+      <p>Sistem menghasilkan: deteksi posisi setiap manggis, klasifikasi status kelayakan ekspor (Layak / Tidak Layak), skor kepercayaan per buah, serta ringkasan statistik keseluruhan gambar.</p>
+    </div>
+    <div class="info-card animate-up delay-4">
+      <div class="info-card-icon">🌐</div>
+      <h3>Arsitektur Sistem</h3>
+      <p>Dibangun dengan arsitektur microservice: <strong>Node.js/Express</strong> sebagai frontend web server dan <strong>Python/Flask</strong> sebagai AI inference service, berkomunikasi via REST API internal yang cepat dan aman.</p>
+    </div>
+  </div>
+
+  <!-- Mission & Vision -->
+  <div style="margin-top:3rem;">
+    <p class="section-label animate-up">Tujuan</p>
+    <h2 class="section-title animate-up delay-1">Misi & <span>Visi</span></h2>
+    <div class="mv-grid">
+      <div class="mv-card mission animate-up delay-2" data-emoji="🚀">
+        <div class="mv-label">Misi</div>
+        <div class="mv-title">Solusi Nyata untuk UMKM</div>
+        <p>Menyediakan alat bantu seleksi kualitas manggis yang akurat, terjangkau, dan mudah digunakan oleh petani dan pelaku usaha kecil menengah Indonesia — tanpa memerlukan keahlian teknis khusus.</p>
+      </div>
+      <div class="mv-card vision animate-up delay-3" data-emoji="🍇">
+        <div class="mv-label">Visi</div>
+        <div class="mv-title">Digitalisasi Agrikultur Indonesia</div>
+        <p>Menjadi pionir dalam penerapan teknologi Computer Vision untuk agrikultur Indonesia, mendorong standar kualitas ekspor yang lebih konsisten dan meningkatkan daya saing produk pertanian lokal di pasar global.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team -->
+  <div style="margin-top:3.5rem;">
+    <p class="section-label animate-up">Tim Pengembang</p>
+    <h2 class="section-title animate-up delay-1">Bertemu <span>Kelompok 11</span></h2>
+    <p style="color:var(--text-muted);font-size:.9rem;margin-top:.5rem;" class="animate-up delay-2">Mahasiswa Program Studi Sistem Informasi, Universitas Andalas</p>
+    <div class="team-grid">
+      <div class="member-card animate-up delay-1">
+        <div class="avatar"><img src="/images/revin.png" alt="Revin Pahlevi" onerror="this.parentElement.innerHTML='👨‍💻'"></div>
+        <div class="member-name">Revin Pahlevi</div>
+        <div class="member-nim">2311522024</div>
+        <span class="member-role">🧑‍💼 Anggota Tim</span>
+      </div>
+      <div class="member-card animate-up delay-2">
+        <div class="avatar"><img src="/images/mashia.png" alt="Mashia Zavira Septiana" onerror="this.parentElement.innerHTML='👩‍💻'"></div>
+        <div class="member-name">Mashia Zavira Septiana</div>
+        <div class="member-nim">2311522028</div>
+        <span class="member-role">🧑‍💼 Anggota Tim</span>
+      </div>
+      <div class="member-card animate-up delay-3">
+        <div class="avatar"><img src="/images/hasbi.png" alt="MHD. Hasbi" onerror="this.parentElement.innerHTML='👨‍🔬'"></div>
+        <div class="member-name">MHD. Hasbi</div>
+        <div class="member-nim">2311522032</div>
+        <span class="member-role">🧑‍💼 Anggota Tim</span>
+      </div>
+      <div class="member-card animate-up delay-4">
+        <div class="avatar"><img src="/images/rizka.png" alt="Rizka Putri Ananda" onerror="this.parentElement.innerHTML='👩‍🔬'"></div>
+        <div class="member-name">Rizka Putri Ananda</div>
+        <div class="member-nim">2311522036</div>
+        <span class="member-role">🧑‍💼 Anggota Tim</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Timeline -->
+  <div style="margin-top:3.5rem;">
+    <p class="section-label animate-up">Perjalanan</p>
+    <h2 class="section-title animate-up delay-1">Tahapan <span>Pengembangan</span></h2>
+    <div class="timeline animate-up delay-2">
+      <div class="tl-item">
+        <div class="tl-date">Fase 1</div>
+        <div class="tl-middle"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <h4>Perencanaan &amp; Riset</h4>
+          <p>Studi literatur, analisis kebutuhan sistem, pemilihan model AI (YOLOv8), dan perancangan arsitektur sistem.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Fase 2</div>
+        <div class="tl-middle"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <h4>Pengumpulan Dataset</h4>
+          <p>Pengumpulan dan anotasi dataset gambar manggis dari berbagai kondisi pencahayaan dan sudut pandang.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Fase 3</div>
+        <div class="tl-middle"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <h4>Training Model YOLOv8</h4>
+          <p>Pelatihan model deteksi objek dengan dataset yang telah dikurasi, optimasi hyperparameter, dan evaluasi performa.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Fase 4</div>
+        <div class="tl-middle"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <h4>Pengembangan Web</h4>
+          <p>Pembuatan antarmuka web dengan Node.js/Express, integrasi AI Service berbasis Flask, dan fitur kamera WebRTC.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Fase 5</div>
+        <div class="tl-middle"><div class="tl-dot" style="background:linear-gradient(135deg,#059669,#10b981);box-shadow:0 0 0 3px rgba(5,150,105,.2);"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <h4>Pengujian &amp; Deployment ✓</h4>
+          <p>Pengujian end-to-end, perbaikan bug, dan deployment sistem untuk demonstrasi tugas besar.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="about-cta animate-up">
+    <h2>Coba Manggoesteen Sekarang</h2>
+    <p>Rasakan sendiri kemampuan AI kami dalam mendeteksi kelayakan ekspor manggis</p>
+    <a href="/analisis" class="btn-white">🔍 Mulai Analisis</a>
+  </div>
+
+</main>
+
+<footer>
+  <strong style="color:var(--purple-dk);">Manggoesteen</strong> &nbsp;·&nbsp;
+  Dibuat oleh <span>Kelompok 11</span> &nbsp;·&nbsp;
+  APM Universitas Andalas &nbsp;·&nbsp;
+  YOLOv8 Computer Vision &nbsp;·&nbsp; <%= new Date().getFullYear() %>
+</footer>
+
+<script>
+function toggleMobileNav(){ document.getElementById('navMobile').classList.toggle('open'); }
+const obs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.style.animationPlayState='running'; } });
+},{threshold:0.08});
+document.querySelectorAll('.animate-up').forEach(el=>{
+  el.style.animationPlayState='paused'; obs.observe(el);
+});
+</script>
+</body>
+</html>
