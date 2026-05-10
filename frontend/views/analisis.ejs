@@ -154,8 +154,9 @@
     @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
     .det-item .label { font-size: .85rem; color: var(--text-muted); }
     .det-item .label strong { color: var(--text); }
-    .conf-bar-wrap { margin-top: .4rem; background: #ede9fe; border-radius: 999px; height: 4px; width: 90px; }
-    .conf-bar { height: 100%; border-radius: 999px; background: var(--grad-main); transition: width 1s ease; }
+    .conf-bar-wrap { margin-top: .5rem; background: #ede9fe; border-radius: 999px; height: 18px; width: 100%; position: relative; overflow: hidden; }
+    .conf-bar { height: 100%; border-radius: 999px; background: var(--grad-main); transition: width 1s ease; position: relative; }
+    .conf-bar-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: .68rem; font-weight: 700; color: #fff; letter-spacing: .3px; pointer-events: none; }
 
     /* ── Spinner ── */
     .spinner {
@@ -276,15 +277,16 @@
           <ul class="det-list">
             <% result.data.forEach(function(item, i) { %>
             <li class="det-item" style="animation-delay:<%= i*0.07 %>s">
-              <div class="label">
+              <div class="label" style="flex:1;min-width:0">
                 <strong>Manggis #<%= i+1 %></strong>
                 <div class="conf-bar-wrap">
-                  <div class="conf-bar" style="width:<%= (item.confidence_score*100).toFixed(0) %>%"></div>
+                  <div class="conf-bar" style="width:<%= (item.confidence_score*100).toFixed(0) %>%">
+                    <span class="conf-bar-label"><%= (item.confidence_score*100).toFixed(0) %>% Kelayakan</span>
+                  </div>
                 </div>
               </div>
-              <div style="text-align:right">
+              <div style="text-align:right;margin-left:.75rem;flex-shrink:0">
                 <span class="badge <%= item.kelayakan==='Layak Ekspor'?'layak':'tidak' %>"><%= item.kelayakan %></span>
-                <div style="font-size:.7rem;color:var(--text-muted);margin-top:.3rem">Akurasi <%= (item.confidence_score*100).toFixed(0) %>%</div>
               </div>
             </li>
             <% }); %>
