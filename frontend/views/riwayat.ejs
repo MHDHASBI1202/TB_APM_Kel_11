@@ -203,7 +203,7 @@
               <td data-label="Tidak"><span class="badge tidak"><%= (h.jumlah||0)-(h.layak||0) %> Tidak</span></td>
               <td data-label="Aksi">
                 <% if(h.imagePath){ %>
-                  <a href="/analisis" class="action-btn">Lihat</a>
+                  <a href="/riwayat/<%= h.id %>" class="action-btn">Lihat</a>
                 <% } else { %>
                   <button class="action-btn" disabled style="opacity:.4;cursor:default;">–</button>
                 <% } %>
