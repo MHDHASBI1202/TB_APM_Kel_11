@@ -27,6 +27,7 @@
       .page-header h1 span {
         background: var(--grad-main);
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
       }
 
@@ -610,11 +611,11 @@
                   <% } else { %>
                     <ul class="det-list">
                       <% result.data.forEach(function(item, i) { %>
-                        <li class="det-item" style="animation-delay:<%= i*0.07 %>s">
+                        <li class="det-item" <%- `style="animation-delay: ${i * 0.07}s;"` %>>
                           <div class="label" style="flex:1;min-width:0">
                             <strong>Manggis #<%= i+1 %></strong>
                             <div class="conf-bar-wrap">
-                              <div class="conf-bar" style="width:<%= (item.confidence_score*100).toFixed(0) %>%">
+                              <div class="conf-bar" <%- `style="width: ${(item.confidence_score * 100).toFixed(0)}%;"` %>>
                                 <span class="conf-bar-label">
                                   <%= (item.confidence_score*100).toFixed(0) %>% Kelayakan
                                 </span>
@@ -663,11 +664,22 @@
       YOLOv8 Computer Vision
     </footer>
 
+<!-- 1. Taruh data YOLOv8 di script JSON agar linter JS tidak bingung -->
+    <% if (result && result.status === 'success' && result.data && result.data.length > 0) { %>
+      <script id="yolo-data" type="application/json">
+        <%- JSON.stringify(result.data) %>
+      </script>
+    <% } %>
+
     <script>
 /* ── Bounding Box Overlay ── */
-<% if (result && result.status === 'success' && result.data && result.data.length > 0) { %>
 (function () {
-  const DETECTIONS = <%- JSON.stringify(result.data) %>;
+  // 2. Ambil data dari script JSON di atas
+  const dataNode = document.getElementById('yolo-data');
+  if (!dataNode) return; // Berhenti jika tidak ada data dari backend
+
+  const DETECTIONS = JSON.parse(dataNode.textContent);
+  
   const imgEl  = document.getElementById('result-photo');
   const canvas = document.getElementById('bbox-canvas');
   const ctx    = canvas.getContext('2d');
@@ -773,10 +785,8 @@
   /* Gambar ulang kalau jendela di-resize */
   window.addEventListener('resize', drawBoxes);
 })();
-<% } %>
 
       function toggleMobileNav() { document.getElementById('navMobile').classList.toggle('open'); }
-
       function dismissError() {
         const b = document.getElementById('error-box');
         if (b) { b.classList.add('hide'); setTimeout(() => b.remove(), 420); }
