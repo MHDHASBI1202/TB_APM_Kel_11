@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+git <!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -603,10 +603,40 @@
                 </div>
 
                 <% if (result.jumlah_manggis_terdeteksi===0) { %>
-                  <div class="result-empty">
-                    <span style="font-size:2rem;">🔍</span>
-                    <p>Tidak ada manggis terdeteksi</p>
-                    <p style="font-size:.78rem;">Coba gunakan foto dengan pencahayaan lebih baik</p>
+                  <div id="bukan-manggis-alert" style="
+                    background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+                    border: 2px solid #fca5a5;
+                    border-radius: 16px;
+                    padding: 1.5rem 1.25rem;
+                    text-align: center;
+                    animation: fadeUp .4s ease;
+                  ">
+                    <div style="font-size:3rem;margin-bottom:.5rem;">🚫</div>
+                    <div style="font-size:1.1rem;font-weight:800;color:#b91c1c;margin-bottom:.4rem;">
+                      Bukan Manggis!
+                    </div>
+                    <div style="font-size:.875rem;color:#7f1d1d;line-height:1.6;margin-bottom:1rem;">
+                      Gambar yang Anda unggah <strong>tidak terdeteksi sebagai manggis</strong>.<br>
+                      Pastikan gambar menampilkan buah manggis dengan jelas.
+                    </div>
+                    <div style="
+                      background:#fff;
+                      border:1px solid #fca5a5;
+                      border-radius:10px;
+                      padding:.75rem 1rem;
+                      font-size:.78rem;
+                      color:#991b1b;
+                      text-align:left;
+                      line-height:1.7;
+                    ">
+                      <strong>💡 Saran:</strong>
+                      <ul style="margin:.4rem 0 0 1.1rem;padding:0;">
+                        <li>Gunakan foto buah manggis yang jelas dan tidak buram</li>
+                        <li>Pastikan pencahayaan cukup terang</li>
+                        <li>Hindari latar belakang yang terlalu ramai</li>
+                        <li>Pastikan buah manggis menjadi objek utama dalam foto</li>
+                      </ul>
+                    </div>
                   </div>
                   <% } else { %>
                     <ul class="det-list">
