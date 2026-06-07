@@ -37,7 +37,7 @@ app.get('/beranda', (req, res) => {
 
 // Halaman Analisis
 app.get('/analisis', (req, res) => {
-    res.render('analisis', { result: null, imagePath: null, error: null });
+    res.render('analisis', { result: null, imagePath: null, error: null, fromHistory: false });
 });
 
 // Proses Analisis (POST)
@@ -64,21 +64,24 @@ app.post('/cek-kelayakan', upload.single('image'), async (req, res) => {
         const layakCount = result.data
             ? result.data.filter(d => d.kelayakan === 'Layak Ekspor').length
             : 0;
+        const entryId = Date.now();
         analysisHistory.unshift({
-            id:        analysisHistory.length + 1,
+            id:        entryId,
             tanggal:   new Date().toISOString(),
             imagePath: imagePath,
             jumlah:    result.jumlah_manggis_terdeteksi || 0,
             layak:     layakCount,
+            result:    result,
         });
 
-        res.render('analisis', { result, imagePath, error: null });
+        res.render('analisis', { result, imagePath, error: null, fromHistory: false });
 
     } catch (err) {
         console.error('Error dari AI Service:', err.message);
         res.render('analisis', {
             result: null, imagePath: null,
-            error: 'Gagal terhubung ke AI Service. Pastikan server Python sudah berjalan.'
+            error: 'Gagal terhubung ke AI Service. Pastikan server Python sudah berjalan.',
+            fromHistory: false,
         });
     }
 });
@@ -86,6 +89,18 @@ app.post('/cek-kelayakan', upload.single('image'), async (req, res) => {
 // Riwayat Analisis
 app.get('/riwayat', (req, res) => {
     res.render('riwayat', { history: analysisHistory });
+});
+
+// Detail Riwayat — tampilkan ulang hasil analisis
+app.get('/riwayat/:id', (req, res) => {
+    const entry = analysisHistory.find(h => String(h.id) === req.params.id);
+    if (!entry) return res.redirect('/riwayat');
+    res.render('analisis', {
+        result:      entry.result,
+        imagePath:   entry.imagePath,
+        error:       null,
+        fromHistory: true,
+    });
 });
 
 // About Us

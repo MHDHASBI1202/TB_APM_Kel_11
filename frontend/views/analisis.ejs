@@ -1,405 +1,903 @@
-<!DOCTYPE html>
+git <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Analisis Kelayakan — Manggoesteen</title>
   <meta name="description" content="Unggah atau ambil foto manggis untuk analisis kelayakan ekspor berbasis AI YOLOv8.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
   <%- include('partials/base_styles') %>
-  <style>
-    /* ── Page header ── */
-    .page-header {
-      text-align: center; padding: 2.5rem 1.5rem 0;
-    }
-    .page-header h1 {
-      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-      font-weight: 900; color: var(--text); letter-spacing: -.5px;
-    }
-    .page-header h1 span {
-      background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .page-header p { color: var(--text-muted); font-size: .95rem; margin-top: .5rem; }
+    <style>
+      /* ── Page header ── */
+      .page-header {
+        text-align: center;
+        padding: 2.5rem 1.5rem 0;
+      }
 
-    /* ── Grid ── */
-    .analysis-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem;
-    }
-    @media(max-width: 800px) { .analysis-grid { grid-template-columns: 1fr; } }
+      .page-header h1 {
+        font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+        font-weight: 900;
+        color: var(--text);
+        letter-spacing: -.5px;
+      }
 
-    /* ── Card ── */
-    .card-title {
-      font-size: 1.05rem; font-weight: 700; color: var(--purple-dk);
-      display: flex; align-items: center; gap: .5rem; margin-bottom: 1.35rem;
-    }
+      .page-header h1 span {
+        background: var(--grad-main);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
 
-    /* ── Tabs ── */
-    .tabs {
-      display: flex; gap: .4rem; margin-bottom: 1.25rem;
-      background: var(--surface2); padding: .3rem; border-radius: 12px;
-    }
-    .tab-btn {
-      flex: 1; padding: .55rem; border-radius: 9px; border: none;
-      background: transparent; color: var(--text-muted);
-      font-family: inherit; font-size: .82rem; font-weight: 600;
-      cursor: pointer; transition: all .2s;
-      display: flex; align-items: center; justify-content: center; gap: .4rem;
-    }
-    .tab-btn.active {
-      background: #fff; color: var(--purple);
-      box-shadow: 0 1px 6px rgba(124,58,237,0.15);
-    }
+      .page-header p {
+        color: var(--text-muted);
+        font-size: .95rem;
+        margin-top: .5rem;
+      }
 
-    /* ── Drop Zone ── */
-    .drop-zone {
-      border: 2px dashed #d8b4fe; border-radius: 14px;
-      padding: 2.5rem 1rem; text-align: center; cursor: pointer;
-      transition: all .25s; position: relative; overflow: hidden;
-      background: var(--bg-soft);
-    }
-    .drop-zone:hover, .drop-zone.drag-over {
-      border-color: var(--purple); background: #ede9fe;
-    }
-    .drop-zone input[type=file] {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
-    }
-    .drop-icon { font-size: 2.8rem; margin-bottom: .65rem; }
-    .drop-zone p { color: var(--text-muted); font-size: .875rem; }
-    .drop-zone strong { color: var(--purple); }
-    #file-preview {
-      max-width: 100%; border-radius: 10px; margin-top: 1rem; display: none;
-      max-height: 210px; object-fit: cover; width: 100%;
-    }
+      /* ── Grid ── */
+      .analysis-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
 
-    /* ── Camera ── */
-    .camera-wrap {
-      position: relative; border-radius: 14px; overflow: hidden;
-      background: #f0e8ff; aspect-ratio: 4/3;
-    }
-    #camera-video { width: 100%; height: 100%; object-fit: cover; display: block; }
-    #camera-canvas { display: none; }
-    .camera-overlay {
-      position: absolute; bottom: 0; left: 0; right: 0; padding: 1rem;
-      display: flex; justify-content: center; gap: .75rem;
-      background: linear-gradient(transparent, rgba(30,18,48,0.55));
-    }
-    .cam-btn {
-      padding: .55rem 1.2rem; border-radius: 999px; border: none;
-      font-family: inherit; font-size: .82rem; font-weight: 700;
-      cursor: pointer; transition: all .2s;
-    }
-    #btn-start-cam  { background: var(--grad-main); color: #fff; }
-    #btn-capture    { background: #fff; color: var(--purple-dk); }
-    #btn-retake     { background: rgba(255,255,255,.25); color: #fff; border: 1px solid rgba(255,255,255,.4); display: none; }
-    #camera-preview { width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 14px; }
-    #cam-status     { font-size: .78rem; color: var(--text-muted); text-align: center; margin-top: .5rem; }
+      @media(max-width: 800px) {
+        .analysis-grid {
+          grid-template-columns: 1fr;
+        }
+      }
 
-    /* ── Submit btn ── */
-    .btn-submit {
-      width: 100%; margin-top: 1.25rem; padding: .9rem;
-      background: var(--grad-main); color: #fff;
-      font-family: inherit; font-size: .95rem; font-weight: 700;
-      border: none; border-radius: 12px; cursor: pointer; transition: all .25s;
-      box-shadow: 0 4px 16px rgba(124,58,237,.3);
-    }
-    .btn-submit:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,.4); }
-    .btn-submit:active { transform: translateY(0); }
-    .btn-submit:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+      /* ── Card ── */
+      .card-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--purple-dk);
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-bottom: 1.35rem;
+      }
 
-    /* ── Error ── */
-    .error-box {
-      background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c;
-      border-radius: 10px; padding: .75rem 1rem; font-size: .85rem; margin-bottom: 1rem;
-      display: flex; align-items: center; gap: .5rem;
-      animation: slideIn .3s ease; transition: opacity .4s ease, transform .4s ease;
-    }
-    .error-box.hide { opacity: 0; transform: translateY(-6px); pointer-events: none; }
-    .error-close {
-      margin-left: auto; background: none; border: none; cursor: pointer;
-      color: #b91c1c; font-size: 1rem; opacity: .7; transition: opacity .2s;
-    }
-    .error-close:hover { opacity: 1; }
+      /* ── Tabs ── */
+      .tabs {
+        display: flex;
+        gap: .4rem;
+        margin-bottom: 1.25rem;
+        background: var(--surface2);
+        padding: .3rem;
+        border-radius: 12px;
+      }
 
-    /* ── Result empty ── */
-    .result-empty {
-      border: 2px dashed #e9d5ff; border-radius: 14px; background: var(--bg-soft);
-      height: 240px; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: .5rem;
-      color: var(--text-muted); font-size: .9rem;
-    }
+      .tab-btn {
+        flex: 1;
+        padding: .55rem;
+        border-radius: 9px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        font-family: inherit;
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .4rem;
+      }
 
-    /* ── Result image ── */
-    .result-img { width: 100%; border-radius: 12px; object-fit: cover; max-height: 240px; margin-bottom: 1rem; border: 1px solid var(--border); }
+      .tab-btn.active {
+        background: #fff;
+        color: var(--purple);
+        box-shadow: 0 1px 6px rgba(124, 58, 237, 0.15);
+      }
 
-    /* ── Stats row ── */
-    .stats-row { display: flex; gap: .75rem; margin-bottom: 1rem; }
-    .stat-chip {
-      flex: 1; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 10px; padding: .65rem .8rem; text-align: center;
-    }
-    .stat-chip .val { font-size: 1.6rem; font-weight: 900; color: var(--purple); }
-    .stat-chip .lbl { font-size: .7rem; color: var(--text-muted); margin-top: 2px; }
+      /* ── Drop Zone ── */
+      .drop-zone {
+        border: 2px dashed #d8b4fe;
+        border-radius: 14px;
+        padding: 2.5rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all .25s;
+        position: relative;
+        overflow: hidden;
+        background: var(--bg-soft);
+      }
 
-    /* ── Detection list ── */
-    .det-list { list-style: none; display: flex; flex-direction: column; gap: .55rem; max-height: 260px; overflow-y: auto; }
-    .det-list::-webkit-scrollbar { width: 4px; }
-    .det-list::-webkit-scrollbar-thumb { background: #d8b4fe; border-radius: 2px; }
-    .det-item {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #fff; border: 1px solid var(--border); border-radius: 10px;
-      padding: .65rem 1rem; box-shadow: var(--shadow-sm);
-      animation: fadeUp .3s ease both;
-    }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-    .det-item .label { font-size: .85rem; color: var(--text-muted); }
-    .det-item .label strong { color: var(--text); }
-    .conf-bar-wrap { margin-top: .4rem; background: #ede9fe; border-radius: 999px; height: 4px; width: 90px; }
-    .conf-bar { height: 100%; border-radius: 999px; background: var(--grad-main); transition: width 1s ease; }
+      .drop-zone:hover,
+      .drop-zone.drag-over {
+        border-color: var(--purple);
+        background: #ede9fe;
+      }
 
-    /* ── Spinner ── */
-    .spinner {
-      display: none; width: 20px; height: 20px;
-      border: 2px solid rgba(255,255,255,.35); border-top-color: #fff;
-      border-radius: 50%; animation: spin .6s linear infinite; margin: 0 auto;
-    }
-    @keyframes spin { to{transform:rotate(360deg)} }
+      .drop-zone input[type=file] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+      }
 
-    /* ── Tip box ── */
-    .tip-box {
-      background: var(--ok-bg); border: 1px solid #d8b4fe;
-      border-radius: 12px; padding: 1rem 1.25rem; margin-top: 1rem;
-      font-size: .82rem; color: var(--purple-dk); line-height: 1.6;
-    }
-    .tip-box strong { font-weight: 700; }
-  </style>
+      .drop-icon {
+        font-size: 2.8rem;
+        margin-bottom: .65rem;
+      }
+
+      .drop-zone p {
+        color: var(--text-muted);
+        font-size: .875rem;
+      }
+
+      .drop-zone strong {
+        color: var(--purple);
+      }
+
+      #file-preview {
+        max-width: 100%;
+        border-radius: 10px;
+        margin-top: 1rem;
+        display: none;
+        max-height: 210px;
+        object-fit: cover;
+        width: 100%;
+      }
+
+      /* ── Camera ── */
+      .camera-wrap {
+        position: relative;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #f0e8ff;
+        aspect-ratio: 4/3;
+      }
+
+      #camera-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      #camera-canvas {
+        display: none;
+      }
+
+      .camera-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+        gap: .75rem;
+        background: linear-gradient(transparent, rgba(30, 18, 48, 0.55));
+      }
+
+      .cam-btn {
+        padding: .55rem 1.2rem;
+        border-radius: 999px;
+        border: none;
+        font-family: inherit;
+        font-size: .82rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .2s;
+      }
+
+      #btn-start-cam {
+        background: var(--grad-main);
+        color: #fff;
+      }
+
+      #btn-capture {
+        background: #fff;
+        color: var(--purple-dk);
+      }
+
+      #btn-retake {
+        background: rgba(255, 255, 255, .25);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, .4);
+        display: none;
+      }
+
+      #camera-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+        border-radius: 14px;
+      }
+
+      #cam-status {
+        font-size: .78rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin-top: .5rem;
+      }
+
+      /* ── Submit btn ── */
+      .btn-submit {
+        width: 100%;
+        margin-top: 1.25rem;
+        padding: .9rem;
+        background: var(--grad-main);
+        color: #fff;
+        font-family: inherit;
+        font-size: .95rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all .25s;
+        box-shadow: 0 4px 16px rgba(124, 58, 237, .3);
+      }
+
+      .btn-submit:hover {
+        filter: brightness(1.1);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(124, 58, 237, .4);
+      }
+
+      .btn-submit:active {
+        transform: translateY(0);
+      }
+
+      .btn-submit:disabled {
+        opacity: .65;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* ── Error ── */
+      .error-box {
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        color: #b91c1c;
+        border-radius: 10px;
+        padding: .75rem 1rem;
+        font-size: .85rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        animation: slideIn .3s ease;
+        transition: opacity .4s ease, transform .4s ease;
+      }
+
+      .error-box.hide {
+        opacity: 0;
+        transform: translateY(-6px);
+        pointer-events: none;
+      }
+
+      .error-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #b91c1c;
+        font-size: 1rem;
+        opacity: .7;
+        transition: opacity .2s;
+      }
+
+      .error-close:hover {
+        opacity: 1;
+      }
+
+      /* ── Result empty ── */
+      .result-empty {
+        border: 2px dashed #e9d5ff;
+        border-radius: 14px;
+        background: var(--bg-soft);
+        height: 240px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        color: var(--text-muted);
+        font-size: .9rem;
+      }
+
+      /* ── Result image wrapper ── */
+      .result-img-wrap {
+        position: relative;
+        display: block;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        line-height: 0; /* hilangkan gap bawah img */
+      }
+      .result-img {
+        width: 100%;
+        display: block;
+        border-radius: 12px;
+        object-fit: contain;
+        max-height: 260px;
+      }
+      #bbox-canvas {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+      }
+
+      /* ── Stats row ── */
+      .stats-row {
+        display: flex;
+        gap: .75rem;
+        margin-bottom: 1rem;
+      }
+
+      .stat-chip {
+        flex: 1;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: .65rem .8rem;
+        text-align: center;
+      }
+
+      .stat-chip .val {
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: var(--purple);
+      }
+
+      .stat-chip .lbl {
+        font-size: .7rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+
+      /* ── Detection list ── */
+      .det-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: .55rem;
+        max-height: 260px;
+        overflow-y: auto;
+      }
+
+      .det-list::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .det-list::-webkit-scrollbar-thumb {
+        background: #d8b4fe;
+        border-radius: 2px;
+      }
+
+      .det-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: .65rem 1rem;
+        box-shadow: var(--shadow-sm);
+        animation: fadeUp .3s ease both;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px)
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0)
+        }
+      }
+
+      .det-item .label {
+        font-size: .85rem;
+        color: var(--text-muted);
+      }
+
+      .det-item .label strong {
+        color: var(--text);
+      }
+
+      .conf-bar-wrap {
+        margin-top: .5rem;
+        background: #ede9fe;
+        border-radius: 999px;
+        height: 18px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .conf-bar {
+        height: 100%;
+        border-radius: 999px;
+        background: var(--grad-main);
+        transition: width 1s ease;
+        position: relative;
+      }
+
+      .conf-bar-label {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .68rem;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: .3px;
+        pointer-events: none;
+      }
+
+      /* ── Spinner ── */
+      .spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, .35);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin .6s linear infinite;
+        margin: 0 auto;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg)
+        }
+      }
+
+      /* ── Tip box ── */
+      .tip-box {
+        background: var(--ok-bg);
+        border: 1px solid #d8b4fe;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-top: 1rem;
+        font-size: .82rem;
+        color: var(--purple-dk);
+        line-height: 1.6;
+      }
+
+      .tip-box strong {
+        font-weight: 700;
+      }
+    </style>
 </head>
+
 <body>
 
-<%- include('partials/navbar', { activeNav: 'analisis' }) %>
+  <%- include('partials/navbar', { activeNav: 'analisis' }) %>
 
-<main>
-  <div class="page-header animate-up">
-    <h1>Analisis <span>Kelayakan Ekspor</span> Manggis</h1>
-    <p>Unggah foto atau gunakan kamera — AI kami akan menilai dalam hitungan detik</p>
-  </div>
-
-  <div class="analysis-grid">
-
-    <!-- INPUT CARD -->
-    <div class="card animate-up delay-1">
-      <div class="card-title">📸 Input Gambar Manggis</div>
-
-      <% if (error) { %>
-      <div class="error-box" id="error-box">
-        <span>⚠️</span>
-        <span><%= error %></span>
-        <button class="error-close" onclick="dismissError()">✕</button>
-      </div>
-      <% } %>
-
-      <div class="tabs">
-        <button class="tab-btn active" id="tab-upload-btn" onclick="switchTab('upload')">📁 Unggah File</button>
-        <button class="tab-btn" id="tab-camera-btn" onclick="switchTab('camera')">📷 Kamera</button>
+    <main>
+      <div class="page-header animate-up">
+        <h1>Analisis <span>Kelayakan Ekspor</span> Manggis</h1>
+        <p>Unggah foto atau gunakan kamera — AI kami akan menilai dalam hitungan detik</p>
       </div>
 
-      <!-- Upload -->
-      <form id="form-upload" action="/cek-kelayakan" method="POST" enctype="multipart/form-data">
-        <div class="drop-zone" id="drop-zone">
-          <input type="file" name="image" id="file-input" accept="image/jpeg,image/png" required onchange="previewFile(this)">
-          <div class="drop-icon">🗂️</div>
-          <p><strong>Klik atau seret gambar</strong> ke sini</p>
-          <p style="margin-top:.25rem;">JPG, PNG &bull; maks. 10MB</p>
-          <img id="file-preview" src="" alt="preview">
+      <% if (fromHistory) { %>
+        <div style="text-align:center;margin-top:1.25rem;" class="animate-up">
+          <a href="/riwayat" style="
+      display:inline-flex;align-items:center;gap:.5rem;
+      padding:.55rem 1.35rem;border-radius:999px;
+      background:var(--ok-bg);border:1px solid #c4b5fd;
+      color:var(--purple-dk);font-size:.85rem;font-weight:700;
+      text-decoration:none;transition:all .2s;
+    " onmouseover="this.style.background='var(--purple)';this.style.color='#fff';"
+            onmouseout="this.style.background='var(--ok-bg)';this.style.color='var(--purple-dk)';">
+            ← Kembali ke Riwayat
+          </a>
         </div>
-        <div class="tip-box">
-          💡 <strong>Tips:</strong> Gunakan foto dengan pencahayaan baik dan manggis terlihat jelas untuk hasil terbaik.
-        </div>
-        <button class="btn-submit" type="submit" id="btn-submit-upload">
-          <span id="btn-text-upload">🔍 Analisis Gambar</span>
-          <div class="spinner" id="spinner-upload"></div>
-        </button>
-      </form>
-
-      <!-- Camera -->
-      <form id="form-camera" style="display:none;" action="/cek-kelayakan" method="POST" enctype="multipart/form-data">
-        <div class="camera-wrap">
-          <video id="camera-video" autoplay playsinline></video>
-          <img id="camera-preview" src="" alt="captured">
-          <canvas id="camera-canvas"></canvas>
-          <div class="camera-overlay">
-            <button type="button" class="cam-btn" id="btn-start-cam" onclick="startCamera()">▶ Nyalakan Kamera</button>
-            <button type="button" class="cam-btn" id="btn-capture" onclick="capturePhoto()" style="display:none;">⬤ Ambil Foto</button>
-            <button type="button" class="cam-btn" id="btn-retake" onclick="retakePhoto()">↩ Ulangi</button>
-          </div>
-        </div>
-        <p id="cam-status">Klik "Nyalakan Kamera" untuk memulai</p>
-        <button class="btn-submit" type="button" id="btn-analyze-cam" onclick="submitCameraForm()" style="display:none;">
-          <span id="btn-text-cam">🔍 Analisis Foto</span>
-          <div class="spinner" id="spinner-cam"></div>
-        </button>
-      </form>
-    </div>
-
-    <!-- RESULT CARD -->
-    <div class="card animate-up delay-2">
-      <div class="card-title">🧬 Hasil Analisis AI</div>
-
-      <% if (result && result.status === 'success') { %>
-        <img class="result-img" src="<%= imagePath %>" alt="Manggis dianalisis">
-        <div class="stats-row">
-          <div class="stat-chip">
-            <div class="val"><%= result.jumlah_manggis_terdeteksi %></div>
-            <div class="lbl">Terdeteksi</div>
-          </div>
-          <%
-            let layakCount = result.data.filter(d => d.kelayakan === 'Layak Ekspor').length;
-            let tidakCount = result.jumlah_manggis_terdeteksi - layakCount;
-          %>
-          <div class="stat-chip">
-            <div class="val" style="color:var(--ok)"><%= layakCount %></div>
-            <div class="lbl">Layak Ekspor</div>
-          </div>
-          <div class="stat-chip">
-            <div class="val" style="color:var(--ng)"><%= tidakCount %></div>
-            <div class="lbl">Tidak Layak</div>
-          </div>
-        </div>
-
-        <% if (result.jumlah_manggis_terdeteksi === 0) { %>
-          <div class="result-empty">
-            <span style="font-size:2rem;">🔍</span>
-            <p>Tidak ada manggis terdeteksi</p>
-            <p style="font-size:.78rem;">Coba gunakan foto dengan pencahayaan lebih baik</p>
-          </div>
-        <% } else { %>
-          <ul class="det-list">
-            <% result.data.forEach(function(item, i) { %>
-            <li class="det-item" style="animation-delay:<%= i*0.07 %>s">
-              <div class="label">
-                <strong>Manggis #<%= i+1 %></strong>
-                <div class="conf-bar-wrap">
-                  <div class="conf-bar" style="width:<%= (item.confidence_score*100).toFixed(0) %>%"></div>
-                </div>
-              </div>
-              <div style="text-align:right">
-                <span class="badge <%= item.kelayakan==='Layak Ekspor'?'layak':'tidak' %>"><%= item.kelayakan %></span>
-                <div style="font-size:.7rem;color:var(--text-muted);margin-top:.3rem">Akurasi <%= (item.confidence_score*100).toFixed(0) %>%</div>
-              </div>
-            </li>
-            <% }); %>
-          </ul>
-
-          <div style="margin-top:1rem;padding:1rem;background:var(--bg-soft);border-radius:12px;border:1px solid var(--border);font-size:.82rem;color:var(--text-muted);line-height:1.6;">
-            <strong style="color:var(--purple-dk);">Ringkasan:</strong>
-            Dari <%= result.jumlah_manggis_terdeteksi %> manggis yang terdeteksi,
-            <strong style="color:var(--ok);"><%= layakCount %> layak ekspor</strong> dan
-            <strong style="color:var(--ng);"><%= tidakCount %> tidak layak</strong>.
-          </div>
         <% } %>
 
-      <% } else { %>
-        <div class="result-empty">
-          <img src="/images/logo.png" alt="" style="width:110px;height:110px;object-fit:contain;display:block;margin:0 auto 0.5rem;">
-          <p>Hasil analisis akan tampil di sini</p>
-          <p style="font-size:.78rem;">Unggah gambar atau gunakan kamera</p>
-        </div>
-      <% } %>
-    </div>
+          <div class="analysis-grid">
 
-  </div>
-</main>
+            <!-- INPUT CARD -->
+            <div class="card animate-up delay-1">
+              <div class="card-title">📸 Input Gambar Manggis</div>
 
-<footer>
-  <strong style="color:var(--purple-dk);">Manggoesteen</strong> &nbsp;·&nbsp;
-  Dibuat oleh <span>Kelompok 11</span> &nbsp;·&nbsp;
-  APM Universitas Andalas &nbsp;·&nbsp;
-  YOLOv8 Computer Vision
-</footer>
+              <% if (error) { %>
+                <div class="error-box" id="error-box">
+                  <span>⚠️</span>
+                  <span>
+                    <%= error %>
+                  </span>
+                  <button class="error-close" onclick="dismissError()">✕</button>
+                </div>
+                <% } %>
 
-<script>
-function toggleMobileNav(){ document.getElementById('navMobile').classList.toggle('open'); }
+                  <div class="tabs">
+                    <button class="tab-btn active" id="tab-upload-btn" onclick="switchTab('upload')">📁 Unggah
+                      File</button>
+                    <button class="tab-btn" id="tab-camera-btn" onclick="switchTab('camera')">📷 Kamera</button>
+                  </div>
 
-function dismissError() {
-  const b = document.getElementById('error-box');
-  if(b){ b.classList.add('hide'); setTimeout(()=>b.remove(), 420); }
-}
-const _eb = document.getElementById('error-box');
-if(_eb) setTimeout(dismissError, 6000);
+                  <!-- Upload -->
+                  <form id="form-upload" action="/cek-kelayakan" method="POST" enctype="multipart/form-data">
+                    <div class="drop-zone" id="drop-zone">
+                      <input type="file" name="image" id="file-input" accept="image/jpeg,image/png" required
+                        onchange="previewFile(this)">
+                      <div class="drop-icon">🗂️</div>
+                      <p><strong>Klik atau seret gambar</strong> ke sini</p>
+                      <p style="margin-top:.25rem;">JPG, PNG &bull; maks. 10MB</p>
+                      <img id="file-preview" src="" alt="preview">
+                    </div>
+                    <div class="tip-box">
+                      💡 <strong>Tips:</strong> Gunakan foto dengan pencahayaan baik dan manggis terlihat jelas untuk
+                      hasil terbaik.
+                    </div>
+                    <button class="btn-submit" type="submit" id="btn-submit-upload">
+                      <span id="btn-text-upload">🔍 Analisis Gambar</span>
+                      <div class="spinner" id="spinner-upload"></div>
+                    </button>
+                  </form>
 
-function switchTab(tab) {
-  const up = tab==='upload';
-  document.getElementById('tab-upload-btn').classList.toggle('active', up);
-  document.getElementById('tab-camera-btn').classList.toggle('active', !up);
-  document.getElementById('form-upload').style.display = up?'block':'none';
-  document.getElementById('form-camera').style.display = up?'none':'block';
-  if(!up && !cameraStream) {} // don't auto-start
-}
+                  <!-- Camera -->
+                  <form id="form-camera" style="display:none;" action="/cek-kelayakan" method="POST"
+                    enctype="multipart/form-data">
+                    <div class="camera-wrap">
+                      <video id="camera-video" autoplay playsinline></video>
+                      <img id="camera-preview" src="" alt="captured">
+                      <canvas id="camera-canvas"></canvas>
+                      <div class="camera-overlay">
+                        <button type="button" class="cam-btn" id="btn-start-cam" onclick="startCamera()">▶ Nyalakan
+                          Kamera</button>
+                        <button type="button" class="cam-btn" id="btn-capture" onclick="capturePhoto()"
+                          style="display:none;">⬤ Ambil Foto</button>
+                        <button type="button" class="cam-btn" id="btn-retake" onclick="retakePhoto()">↩ Ulangi</button>
+                      </div>
+                    </div>
+                    <p id="cam-status">Klik "Nyalakan Kamera" untuk memulai</p>
+                    <button class="btn-submit" type="button" id="btn-analyze-cam" onclick="submitCameraForm()"
+                      style="display:none;">
+                      <span id="btn-text-cam">🔍 Analisis Foto</span>
+                      <div class="spinner" id="spinner-cam"></div>
+                    </button>
+                  </form>
+            </div>
 
-function previewFile(input) {
-  const p = document.getElementById('file-preview');
-  if(input.files && input.files[0]){
-    p.src = URL.createObjectURL(input.files[0]);
-    p.style.display = 'block';
+            <!-- RESULT CARD -->
+            <div class="card animate-up delay-2">
+              <div class="card-title">🧬 Hasil Analisis AI</div>
+
+              <% if (result && result.status==='success' ) { %>
+                <div class="result-img-wrap">
+                  <img class="result-img" id="result-photo" src="<%= imagePath %>" alt="Manggis dianalisis">
+                  <canvas id="bbox-canvas"></canvas>
+                </div>
+                <div class="stats-row">
+                  <div class="stat-chip">
+                    <div class="val">
+                      <%= result.jumlah_manggis_terdeteksi %>
+                    </div>
+                    <div class="lbl">Terdeteksi</div>
+                  </div>
+                  <% let layakCount=result.data.filter(d=> d.kelayakan === 'Layak Ekspor').length;
+                    let tidakCount = result.jumlah_manggis_terdeteksi - layakCount;
+                    %>
+                    <div class="stat-chip">
+                      <div class="val" style="color:var(--ok)">
+                        <%= layakCount %>
+                      </div>
+                      <div class="lbl">Layak Ekspor</div>
+                    </div>
+                    <div class="stat-chip">
+                      <div class="val" style="color:var(--ng)">
+                        <%= tidakCount %>
+                      </div>
+                      <div class="lbl">Tidak Layak</div>
+                    </div>
+                </div>
+
+                <% if (result.jumlah_manggis_terdeteksi===0) { %>
+                  <div id="bukan-manggis-alert" style="
+                    background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+                    border: 2px solid #fca5a5;
+                    border-radius: 16px;
+                    padding: 1.5rem 1.25rem;
+                    text-align: center;
+                    animation: fadeUp .4s ease;
+                  ">
+                    <div style="font-size:3rem;margin-bottom:.5rem;">🚫</div>
+                    <div style="font-size:1.1rem;font-weight:800;color:#b91c1c;margin-bottom:.4rem;">
+                      Bukan Manggis!
+                    </div>
+                    <div style="font-size:.875rem;color:#7f1d1d;line-height:1.6;margin-bottom:1rem;">
+                      Gambar yang Anda unggah <strong>tidak terdeteksi sebagai manggis</strong>.<br>
+                      Pastikan gambar menampilkan buah manggis dengan jelas.
+                    </div>
+                    <div style="
+                      background:#fff;
+                      border:1px solid #fca5a5;
+                      border-radius:10px;
+                      padding:.75rem 1rem;
+                      font-size:.78rem;
+                      color:#991b1b;
+                      text-align:left;
+                      line-height:1.7;
+                    ">
+                      <strong>💡 Saran:</strong>
+                      <ul style="margin:.4rem 0 0 1.1rem;padding:0;">
+                        <li>Gunakan foto buah manggis yang jelas dan tidak buram</li>
+                        <li>Pastikan pencahayaan cukup terang</li>
+                        <li>Hindari latar belakang yang terlalu ramai</li>
+                        <li>Pastikan buah manggis menjadi objek utama dalam foto</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <% } else { %>
+                    <ul class="det-list">
+                      <% result.data.forEach(function(item, i) { %>
+                        <li class="det-item" <%- `style="animation-delay: ${i * 0.07}s;"` %>>
+                          <div class="label" style="flex:1;min-width:0">
+                            <strong>Manggis #<%= i+1 %></strong>
+                            <div class="conf-bar-wrap">
+                              <div class="conf-bar" <%- `style="width: ${(item.confidence_score * 100).toFixed(0)}%;"` %>>
+                                <span class="conf-bar-label">
+                                  <%= (item.confidence_score*100).toFixed(0) %>% Kelayakan
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div style="text-align:right;margin-left:.75rem;flex-shrink:0">
+                            <span class="badge <%= item.kelayakan==='Layak Ekspor'?'layak':'tidak' %>">
+                              <%= item.kelayakan %>
+                            </span>
+                          </div>
+                        </li>
+                        <% }); %>
+                    </ul>
+
+                    <div
+                      style="margin-top:1rem;padding:1rem;background:var(--bg-soft);border-radius:12px;border:1px solid var(--border);font-size:.82rem;color:var(--text-muted);line-height:1.6;">
+                      <strong style="color:var(--purple-dk);">Ringkasan:</strong>
+                      Dari <%= result.jumlah_manggis_terdeteksi %> manggis yang terdeteksi,
+                        <strong style="color:var(--ok);">
+                          <%= layakCount %> layak ekspor
+                        </strong> dan
+                        <strong style="color:var(--ng);">
+                          <%= tidakCount %> tidak layak
+                        </strong>.
+                    </div>
+                    <% } %>
+
+                      <% } else { %>
+                        <div class="result-empty">
+                          <img src="/images/logo.png" alt=""
+                            style="width:110px;height:110px;object-fit:contain;display:block;margin:0 auto 0.5rem;">
+                          <p>Hasil analisis akan tampil di sini</p>
+                          <p style="font-size:.78rem;">Unggah gambar atau gunakan kamera</p>
+                        </div>
+                        <% } %>
+            </div>
+
+          </div>
+    </main>
+
+    <footer>
+      <strong style="color:var(--purple-dk);">Manggoesteen</strong> &nbsp;·&nbsp;
+      Dibuat oleh <span>Kelompok 11</span> &nbsp;·&nbsp;
+      APM Universitas Andalas &nbsp;·&nbsp;
+      YOLOv8 Computer Vision
+    </footer>
+
+<!-- 1. Taruh data YOLOv8 di script JSON agar linter JS tidak bingung -->
+    <% if (result && result.status === 'success' && result.data && result.data.length > 0) { %>
+      <script id="yolo-data" type="application/json">
+        <%- JSON.stringify(result.data) %>
+      </script>
+    <% } %>
+
+    <script>
+/* ── Bounding Box Overlay ── */
+(function () {
+  // 2. Ambil data dari script JSON di atas
+  const dataNode = document.getElementById('yolo-data');
+  if (!dataNode) return; // Berhenti jika tidak ada data dari backend
+
+  const DETECTIONS = JSON.parse(dataNode.textContent);
+  
+  const imgEl  = document.getElementById('result-photo');
+  const canvas = document.getElementById('bbox-canvas');
+  const ctx    = canvas.getContext('2d');
+
+  function drawBoxes() {
+    /* Ukuran tampil img di layar */
+    const dw = imgEl.clientWidth;
+    const dh = imgEl.clientHeight;
+    /* Ukuran asli gambar */
+    const nw = imgEl.naturalWidth  || imgEl.width;
+    const nh = imgEl.naturalHeight || imgEl.height;
+
+    canvas.width  = dw;
+    canvas.height = dh;
+    ctx.clearRect(0, 0, dw, dh);
+
+    /* Rasio skala dari koordinat YOLO → ukuran tampil */
+    const scaleX = dw / nw;
+    const scaleY = dh / nh;
+
+    DETECTIONS.forEach(function (det, i) {
+      const [x1r, y1r, x2r, y2r] = det.bounding_box;
+      const isLayak = det.kelayakan === 'Layak Ekspor';
+      const color   = isLayak ? '#22c55e' : '#ef4444';
+      const colorBg = isLayak ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)';
+
+      /* Skalakan koordinat */
+      const x1 = x1r * scaleX, y1 = y1r * scaleY;
+      const x2 = x2r * scaleX, y2 = y2r * scaleY;
+      const bw = x2 - x1, bh = y2 - y1;
+
+      /* Fill transparan */
+      ctx.fillStyle = colorBg;
+      ctx.fillRect(x1, y1, bw, bh);
+
+      /* Kotak border */
+      ctx.strokeStyle = color;
+      ctx.lineWidth   = Math.max(1.5, dw / 300);
+      ctx.strokeRect(x1, y1, bw, bh);
+
+      /* ── Label pill ── */
+      const fSize  = Math.max(10, dw / 45);
+      ctx.font     = `bold ${fSize}px Inter,sans-serif`;
+      const line1  = 'Manggis #' + (i + 1);
+      const line2  = det.kelayakan;
+      const padX   = fSize * 0.55;
+      const padY   = fSize * 0.35;
+      const lineH  = fSize * 1.4;
+      const tw     = Math.max(ctx.measureText(line1).width, ctx.measureText(line2).width);
+      const pillW  = tw + padX * 2;
+      const pillH  = lineH * 2 + padY * 2;
+
+      /* Posisi: atas kotak kalau ada ruang, else di dalam */
+      let lx = x1, ly = y1 - pillH;
+      if (ly < 0) ly = y1;
+
+      /* Rounded rect */
+      const rr = 5;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(lx + rr, ly);
+      ctx.lineTo(lx + pillW - rr, ly);
+      ctx.quadraticCurveTo(lx + pillW, ly, lx + pillW, ly + rr);
+      ctx.lineTo(lx + pillW, ly + pillH - rr);
+      ctx.quadraticCurveTo(lx + pillW, ly + pillH, lx + pillW - rr, ly + pillH);
+      ctx.lineTo(lx + rr, ly + pillH);
+      ctx.quadraticCurveTo(lx, ly + pillH, lx, ly + pillH - rr);
+      ctx.lineTo(lx, ly + rr);
+      ctx.quadraticCurveTo(lx, ly, lx + rr, ly);
+      ctx.closePath();
+      ctx.fill();
+
+      /* Teks */
+      ctx.fillStyle = '#fff';
+      ctx.font      = `bold ${fSize}px Inter,sans-serif`;
+      ctx.fillText(line1, lx + padX, ly + padY + fSize);
+      ctx.font      = `${fSize * 0.85}px Inter,sans-serif`;
+      ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      ctx.fillText(line2, lx + padX, ly + padY + fSize + lineH);
+
+      /* Badge nomor pojok kanan atas kotak */
+      const nr = Math.max(8, dw / 60);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x2 - nr - 2, y1 + nr + 2, nr, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle    = '#fff';
+      ctx.font         = `bold ${nr}px Inter,sans-serif`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(i + 1), x2 - nr - 2, y1 + nr + 2);
+      ctx.textAlign    = 'left';
+      ctx.textBaseline = 'alphabetic';
+    });
   }
-}
 
-const dz = document.getElementById('drop-zone');
-['dragenter','dragover'].forEach(e => dz.addEventListener(e, ()=>dz.classList.add('drag-over')));
-['dragleave','drop'].forEach(e => dz.addEventListener(e, ()=>dz.classList.remove('drag-over')));
-
-document.getElementById('form-upload').addEventListener('submit', ()=>{
-  document.getElementById('btn-text-upload').style.display = 'none';
-  document.getElementById('spinner-upload').style.display = 'block';
-  document.getElementById('btn-submit-upload').disabled = true;
-});
-
-let cameraStream = null, capturedBlob = null;
-
-async function startCamera(){
-  try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}, audio:false});
-    const v = document.getElementById('camera-video');
-    v.srcObject = cameraStream; v.style.display = 'block';
-    document.getElementById('camera-preview').style.display = 'none';
-    document.getElementById('btn-start-cam').style.display = 'none';
-    document.getElementById('btn-capture').style.display = 'inline-flex';
-    document.getElementById('cam-status').textContent = 'Kamera aktif — arahkan ke manggis lalu tekan tombol foto';
-  } catch(e) {
-    document.getElementById('cam-status').textContent = '⚠ Kamera tidak dapat diakses: '+e.message;
+  if (imgEl.complete && imgEl.naturalWidth) {
+    drawBoxes();
+  } else {
+    imgEl.addEventListener('load', drawBoxes);
   }
-}
 
-function capturePhoto(){
-  const v = document.getElementById('camera-video'), c = document.getElementById('camera-canvas');
-  c.width = v.videoWidth; c.height = v.videoHeight;
-  c.getContext('2d').drawImage(v,0,0);
-  const pr = document.getElementById('camera-preview');
-  pr.src = c.toDataURL('image/jpeg',0.9); pr.style.display = 'block'; v.style.display = 'none';
-  document.getElementById('btn-capture').style.display = 'none';
-  document.getElementById('btn-retake').style.display = 'inline-flex';
-  document.getElementById('btn-analyze-cam').style.display = 'block';
-  document.getElementById('cam-status').textContent = 'Foto berhasil diambil ✓ Siap dianalisis';
-  c.toBlob(b=>{capturedBlob=b;},'image/jpeg',0.9);
-  if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
-}
+  /* Gambar ulang kalau jendela di-resize */
+  window.addEventListener('resize', drawBoxes);
+})();
 
-function retakePhoto(){
-  capturedBlob = null;
-  document.getElementById('camera-preview').style.display = 'none';
-  document.getElementById('btn-retake').style.display = 'none';
-  document.getElementById('btn-analyze-cam').style.display = 'none';
-  startCamera();
-}
+      function toggleMobileNav() { document.getElementById('navMobile').classList.toggle('open'); }
+      function dismissError() {
+        const b = document.getElementById('error-box');
+        if (b) { b.classList.add('hide'); setTimeout(() => b.remove(), 420); }
+      }
+      const _eb = document.getElementById('error-box');
+      if (_eb) setTimeout(dismissError, 6000);
 
-async function submitCameraForm(){
-  if(!capturedBlob){alert('Silakan ambil foto terlebih dahulu!');return;}
-  document.getElementById('btn-text-cam').style.display = 'none';
-  document.getElementById('spinner-cam').style.display = 'block';
-  const fd = new FormData(); fd.append('image', capturedBlob, 'capture.jpg');
-  const r = await fetch('/cek-kelayakan', {method:'POST', body:fd});
-  const h = await r.text(); document.open(); document.write(h); document.close();
-}
-</script>
+      function switchTab(tab) {
+        const up = tab === 'upload';
+        document.getElementById('tab-upload-btn').classList.toggle('active', up);
+        document.getElementById('tab-camera-btn').classList.toggle('active', !up);
+        document.getElementById('form-upload').style.display = up ? 'block' : 'none';
+        document.getElementById('form-camera').style.display = up ? 'none' : 'block';
+        if (!up && !cameraStream) { } // don't auto-start
+      }
+
+      function previewFile(input) {
+        const p = document.getElementById('file-preview');
+        if (input.files && input.files[0]) {
+          p.src = URL.createObjectURL(input.files[0]);
+          p.style.display = 'block';
+        }
+      }
+
+      const dz = document.getElementById('drop-zone');
+      ['dragenter', 'dragover'].forEach(e => dz.addEventListener(e, () => dz.classList.add('drag-over')));
+      ['dragleave', 'drop'].forEach(e => dz.addEventListener(e, () => dz.classList.remove('drag-over')));
+
+      document.getElementById('form-upload').addEventListener('submit', () => {
+        document.getElementById('btn-text-upload').style.display = 'none';
+        document.getElementById('spinner-upload').style.display = 'block';
+        document.getElementById('btn-submit-upload').disabled = true;
+      });
+
+      let cameraStream = null, capturedBlob = null;
+
+      async function startCamera() {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+          const v = document.getElementById('camera-video');
+          v.srcObject = cameraStream; v.style.display = 'block';
+          document.getElementById('camera-preview').style.display = 'none';
+          document.getElementById('btn-start-cam').style.display = 'none';
+          document.getElementById('btn-capture').style.display = 'inline-flex';
+          document.getElementById('cam-status').textContent = 'Kamera aktif — arahkan ke manggis lalu tekan tombol foto';
+        } catch (e) {
+          document.getElementById('cam-status').textContent = '⚠ Kamera tidak dapat diakses: ' + e.message;
+        }
+      }
+
+      function capturePhoto() {
+        const v = document.getElementById('camera-video'), c = document.getElementById('camera-canvas');
+        c.width = v.videoWidth; c.height = v.videoHeight;
+        c.getContext('2d').drawImage(v, 0, 0);
+        const pr = document.getElementById('camera-preview');
+        pr.src = c.toDataURL('image/jpeg', 0.9); pr.style.display = 'block'; v.style.display = 'none';
+        document.getElementById('btn-capture').style.display = 'none';
+        document.getElementById('btn-retake').style.display = 'inline-flex';
+        document.getElementById('btn-analyze-cam').style.display = 'block';
+        document.getElementById('cam-status').textContent = 'Foto berhasil diambil ✓ Siap dianalisis';
+        c.toBlob(b => { capturedBlob = b; }, 'image/jpeg', 0.9);
+        if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+      }
+
+      function retakePhoto() {
+        capturedBlob = null;
+        document.getElementById('camera-preview').style.display = 'none';
+        document.getElementById('btn-retake').style.display = 'none';
+        document.getElementById('btn-analyze-cam').style.display = 'none';
+        startCamera();
+      }
+
+      async function submitCameraForm() {
+        if (!capturedBlob) { alert('Silakan ambil foto terlebih dahulu!'); return; }
+        document.getElementById('btn-text-cam').style.display = 'none';
+        document.getElementById('spinner-cam').style.display = 'block';
+        const fd = new FormData(); fd.append('image', capturedBlob, 'capture.jpg');
+        const r = await fetch('/cek-kelayakan', { method: 'POST', body: fd });
+        const h = await r.text(); document.open(); document.write(h); document.close();
+      }
+    </script>
 </body>
+
 </html>
